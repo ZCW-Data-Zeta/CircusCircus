@@ -14,7 +14,7 @@ from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-# adding db url
+# adding db (database) url
 import os
 if os.getenv("DATABASE_URL"):
 	app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -22,14 +22,16 @@ if os.getenv("DATABASE_URL"):
 else:
 	print("DATABASE_URL is not set, using sqlite")
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) # calls database
 
-#VIEWS
+# --- VIEWS ---
+
 
 @app.route('/')
 def index():
 	subforums = Subforum.query.filter(Subforum.parent_id == None).order_by(Subforum.id)
 	return render_template("subforums.html", subforums=subforums)
+
 
 @app.route('/subforum')
 def subforum():
@@ -59,6 +61,7 @@ def addpost():
 
 	return render_template("createpost.html", subforum=subforum)
 
+
 @app.route('/viewpost')
 def viewpost():
 	postid = int(request.args.get("post"))
@@ -70,7 +73,8 @@ def viewpost():
 	comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc()) # no need for scalability now
 	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
-#ACTIONS
+# --- ACTIONS ---
+
 
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
@@ -87,6 +91,7 @@ def comment():
 	db.session.commit()
 	return redirect("/viewpost?post=" + str(post_id))
 
+
 @login_required
 @app.route('/action_post', methods=['POST'])
 def action_post():
@@ -98,7 +103,7 @@ def action_post():
 	user = current_user
 	title = request.form['title']
 	content = request.form['content']
-	#check for valid posting
+	# check for valid posting
 	errors = []
 	retry = False
 	if not valid_title(title):
@@ -137,6 +142,7 @@ def action_logout():
 	logout_user()
 	return redirect("/")
 
+
 @app.route('/action_createaccount', methods=['POST'])
 def action_createaccount():
 	username = request.form['username']
@@ -166,8 +172,10 @@ def action_createaccount():
 	login_user(user)
 	return redirect("/")
 
+
 def error(errormessage):
 	return "<b style=\"color: red;\">" + errormessage + "</b>"
+
 
 def generateLinkPath(subforumid):
 	links = []
@@ -184,9 +192,9 @@ def generateLinkPath(subforumid):
 	return link
 
 
-#from forum.app import db, app 
+# from forum.app import db, app
 
-
+# calling login Manager application
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -197,7 +205,9 @@ login_manager.init_app(app)
 
 
 
-#DATABASE STUFF
+# --- DATABASE STUFF ---
+
+
 @login_manager.user_loader
 def load_user(userid):
 	return User.query.get(userid)
@@ -205,27 +215,38 @@ def load_user(userid):
 
 password_regex = re.compile("^[a-zA-Z0-9!@#%&]{6,40}$")
 username_regex = re.compile("^[a-zA-Z0-9!@#%&]{4,40}$")
-#Account checks
+
+
+# - Account checks -
 def username_taken(username):
 	return User.query.filter(User.username == username).first()
+
+
 def email_taken(email):
 	return User.query.filter(User.email == email).first()
+
+
 def valid_username(username):
 	if not username_regex.match(username):
 		#username does not meet password reqirements
 		return False
 	#username is not taken and does meet the password requirements
 	return True
+
+
 def valid_password(password):
 	return password_regex.match(password)
-#Post checks
+
+# - Post checks -
 def valid_title(title):
 	return len(title) > 4 and len(title) < 140
+
+
 def valid_content(content):
 	return len(content) > 10 and len(content) < 5000
 
 
-#OBJECT MODELS
+# - OBJECT MODELS -
 class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.Text, unique=True)
@@ -239,8 +260,11 @@ class User(UserMixin, db.Model):
 		self.email = email
 		self.username = username
 		self.password_hash = generate_password_hash(password)
+
 	def check_password(self, password):
 		return check_password_hash(self.password_hash, password)
+
+# post class
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.Text)
@@ -250,16 +274,18 @@ class Post(db.Model):
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
 
-	#cache stuff
+	# cache stuff
 	lastcheck = None
 	savedresponce = None
+
 	def __init__(self, title, content, postdate):
 		self.title = title
 		self.content = content
 		self.postdate = postdate
+
 	def get_time_string(self):
-		#this only needs to be calculated every so often, not for every request
-		#this can be a rudamentary chache
+		# this only needs to be calculated every so often, not for every request
+		# this can be a rudimentary cache
 		now = datetime.datetime.now()
 		if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
 			self.lastcheck = now
@@ -283,6 +309,7 @@ class Post(db.Model):
 
 		return self.savedresponce
 
+
 class Subforum(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.Text, unique=True)
@@ -292,9 +319,11 @@ class Subforum(db.Model):
 	posts = db.relationship("Post", backref="subforum")
 	path = None
 	hidden = db.Column(db.Boolean, default=False)
+
 	def __init__(self, title, description):
 		self.title = title
 		self.description = description
+
 
 class Comment(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -305,12 +334,14 @@ class Comment(db.Model):
 
 	lastcheck = None
 	savedresponce = None
+
 	def __init__(self, content, postdate):
 		self.content = content
 		self.postdate = postdate
+
 	def get_time_string(self):
-		#this only needs to be calculated every so often, not for every request
-		#this can be a rudamentary chache
+		# this only needs to be calculated every so often, not for every request
+		# this can be a rudimentary cache
 		now = datetime.datetime.now()
 		if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
 			self.lastcheck = now
@@ -339,6 +370,7 @@ def init_site():
 	add_subforum("General Discussion", "Use this subforum to post anything you want")
 	add_subforum("Other", "Discuss other things here")
 
+
 def add_subforum(title, description, parent=None):
 	sub = Subforum(title, description)
 	if parent:
@@ -355,6 +387,7 @@ def add_subforum(title, description, parent=None):
 	print("adding " + title)
 	db.session.commit()
 	return sub
+
 """
 def interpret_site_value(subforumstr):
 	segments = subforumstr.split(':')

@@ -85,7 +85,64 @@ def comment():
 	current_user.comments.append(comment)
 	post.comments.append(comment)
 	db.session.commit()
+	content = request.form['content']
+
+
+	# Like button
+
+	# replaces key word with emoji
+	if '*wink*' in content:
+		content = content.replace('*wink*', '\U0001F609')
+	if '*smile*' in content:
+		content = content.replace('*smile*', '\U0001F600')
+	if '*like*' in content:
+		content = content.replace('*like*', '\U0001F44D')
+
+
+
 	return redirect("/viewpost?post=" + str(post_id))
+
+@login_required
+@app.route('/comment_comment', methods=['POST', 'GET'])
+# '/action_comment' is how viewpost.html calls comment()
+def comment_comment():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+
+    parent_id = int(request.args.get("parent"))
+    print(parent_id)
+    parent = Comment.query.filter(Comment.id == parent_id).first()
+    if not post:
+        return error("That post does not exist!")
+    content = request.form['content']
+    #joe added content2 and changed comment
+    content2 = links(content)
+    if not parent:
+        return error("This parent comment does not exist!")
+
+    # Like button
+    like_counter = 0
+    if request.method == 'POST':
+        if request.form.get('action1') == 'Like':
+            print('hello')
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+
+    postdate = datetime.datetime.now()
+    #  content, postdate, user_id, post_id, parent_comment_id = None
+    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    # this creates an instance of comment
+    # go to the post table, go to the comments column, and then add the comment
+    db.session.add(comment)
+    db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
+
 
 @login_required
 @app.route('/action_post', methods=['POST'])

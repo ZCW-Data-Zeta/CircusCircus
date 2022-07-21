@@ -142,3 +142,5 @@ cython_debug/
 
 # PyCharm local IDE ignore
 .idea/
+.DS_store
+.DS_Store/

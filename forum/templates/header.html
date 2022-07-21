@@ -1,4 +1,11 @@
-<a href="/" id="nolinks"><b>{{ config.SITE_NAME }}</b></a>{% if config.SITE_DESCRIPTION %} - {% endif %} <i>{{ config.SITE_DESCRIPTION }}</i>
+<a href="/" id="nolinks">
+<nav class="navbar navbar-light bg-light">
+  <a class="navbar-brand" href="#">
+    <img src="../../../static/HawaiianShirtPartyLogo.png" width="50" height="50" class="d-inline-block align-left">
+ 	</a>
+	  <b>{{ config.SITE_NAME }}</b>
+	{% if config.SITE_DESCRIPTION %} - {% endif %} <i>{{ config.SITE_DESCRIPTION }}</i>
+</nav>
 <div class="login">
 	{% if current_user.is_authenticated %}
 	<b {% if current_user.admin %} style="color: red;" {% endif %}>{{ current_user.username }}</b><a class="logoutlink" href="/action_logout">(logout)</a>

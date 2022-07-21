@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename="bootstrap.min.css")}}">
-	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename="style.css")}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='bootstrap.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
 	<title>{{ config.SITE_NAME }}</title>
 </head>
 <body>
@@ -26,5 +26,20 @@
 </div>
 </body>
 
+<div class="page">
+	<div class="footer-basic">
+			{%include 'footer.html'%}
+		<div>
+			{% if errors %}
+			<div class="errors">
+				{% for error in errors%}
+					<p class="errors">
+						{{error}}
+					</p>
+			{% endfor %}
+		</div>
+		{% endif %}
+		<div class="content">
+			{% block footer %}{% endblock %}
 
 </html>

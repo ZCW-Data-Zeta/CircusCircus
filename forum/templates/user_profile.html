@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h1>User: {{ user.username }}</h1>
+    <hr>
+    <h2>About Me: {{ user.about }}</h2>
+    {% for post in posts %}
+    <p>
+    {{ post.title }}
+    </p>
+    {% endfor %}
+{% endblock %}

@@ -203,22 +203,22 @@ def generateLinkPath(subforumid):
 
 @app.route('/user/<username>')
 def user(username):
-	user = User.query.filter(User.username == username).first()
-	userid = User.query.filter(User.id == username).first()
-	posts = [
-		{'author': user, 'body': 'Test post #1'},
-		{'author': user, 'body': 'Test post #2'}]
-	# posts = [Post.user_id == userid]
-	return render_template('user_profile.html', user=user, userid = userid, posts = posts)
+    user = User.query.filter(User.username == username).first()
+    userid = User.query.filter(User.id == username).first()
+    posts = [
+        {'author': user, 'body': 'Test post #1'},
+        {'author': user, 'body': 'Test post #2'}]
+    # posts = [Post.user_id == userid]
+    return render_template('user_profile.html', user=user, userid = userid, posts = posts)
 
 
 @app.route('/edit/<username>', methods=['POST', 'GET'])
 @login_required
 def action_edit_user(username):
-	user = User.query.filter(User.username == username).first()
-	if request.method == 'POST' and current_user == user:
-		user.about = request.form['about']
-		db.session.commit()
+    user = User.query.filter(User.username == username).first()
+    if request.method == 'POST' and current_user == user:
+        user.about = request.form['about']
+        db.session.commit()
 # from forum.app import db, app
 
 
@@ -300,6 +300,9 @@ class Post(db.Model):
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
     private = db.Column(db.Boolean, default=False)
+    about = db.Column(db.Text)
+    avatar = db.Column(db.Integer, default=0)
+    background_color = db.Column(db.Text, default="#77898B")
 
     # cache stuff
     lastcheck = None
@@ -459,7 +462,7 @@ def setup():
 		interpret_site_value(value)
 """
 
-# db.drop_all()
+# db.drop_all() #the NUKE
 db.create_all()
 if not Subforum.query.all():
     init_site()

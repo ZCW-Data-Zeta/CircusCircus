@@ -140,6 +140,8 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+
+# PyCharm local IDE ignore
 # Local Files
 .DS_Store
 .DS_Store/
@@ -147,3 +149,4 @@ cython_debug/
 .idea/misc.xml
 .idea/workspace.xml
 .gitignore
+

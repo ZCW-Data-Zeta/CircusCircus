@@ -11,6 +11,8 @@ import os
 # Set environment variable
 os.environ['TK_SILENCE_DEPRECATION'] = '1'
 
+import im_c_receive as im_recv
+
 HOST = '0.0.0.0'  # localhost IP
 PORT = 9090  # port forward to allow LAN communication
 
@@ -41,7 +43,7 @@ class Client:
         # gui interactive thread
         gui_thread = threading.Thread(target=self.gui_loop)
         # deals with server connection
-        receive_thread = threading.Thread(target=self.receive)
+        receive_thread = threading.Thread(target=im_recv.receive(self))
 
         gui_thread.start()
         receive_thread.start()

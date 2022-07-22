@@ -142,6 +142,8 @@ cython_debug/
 
 # Local Files
 .DS_Store
+.DS_Store/
+.idea/
 .idea/misc.xml
 .idea/workspace.xml
 .gitignore

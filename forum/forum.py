@@ -98,7 +98,7 @@ def comment():
 
 
 @login_required
-@app.route('/action_post', methods=['POST'])
+@app.route('/action_post', methods=['POST', 'GET'])
 def action_post():
     subforum_id = int(request.args.get("sub"))
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
@@ -111,6 +111,8 @@ def action_post():
     check_private = request.form.get('private')
     if check_private:
         private = True
+    else:
+        private = False
     # check for valid posting
     errors = []
     retry = False
@@ -122,7 +124,7 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
-    post = Post(title, content, datetime.datetime.now())
+    post = Post(title, content, datetime.datetime.now(), private)
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
@@ -280,7 +282,7 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
-    hidden = db.Column(db.Boolean, default=False)
+    private = db.Column(db.Boolean, default=False)
 
     # cache stuff
     lastcheck = None

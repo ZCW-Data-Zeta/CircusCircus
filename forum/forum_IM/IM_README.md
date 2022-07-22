@@ -1,7 +1,8 @@
 
-# Chat Program for Flask based forum in Python3(.8.9)
+# Chat Program for Flask based forum in Python3(.8.*)
 ## Developed for ZCW Deta Zeta group 
-
+be sure to install $ pip install flask-socketio
+flask's socketIO is essential to allow for the forum to host the chat server
 ## General Decisions to be made
 
 #### How to handle user authentication?
@@ -29,6 +30,6 @@ Connect DB Back to Forum DB
     Inspiration is from AOL AIM
 
 ?? Add more front/back ends ??
-
+add Flask-SocketIO
 ?? Add more general decisions to be made ??
 

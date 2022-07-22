@@ -6,7 +6,7 @@
 	<div class="actualposttitle">
 		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
-			{{ post.user.username }}
+			<a href="/user/{{ post.user.username }}">{{ post.user.username }}</a>
 
 		</div>
 		<div class="posttime">
@@ -69,7 +69,7 @@
 	
 	<div class="comment">
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}><a href="/user/{{ comment.user.username }}">{{ comment.user.username }}</a></span>) -
 		</div>
 		<div class="commentcontent">
 			{{ comment.content }}

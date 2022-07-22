@@ -89,7 +89,64 @@ def comment():
 	current_user.comments.append(comment)
 	post.comments.append(comment)
 	db.session.commit()
+	content = request.form['content']
+
+
+	# Like button
+
+	# replaces key word with emoji
+	if '*wink*' in content:
+		content = content.replace('*wink*', '\U0001F609')
+	if '*smile*' in content:
+		content = content.replace('*smile*', '\U0001F600')
+	if '*like*' in content:
+		content = content.replace('*like*', '\U0001F44D')
+
+
+
 	return redirect("/viewpost?post=" + str(post_id))
+
+
+@login_required
+@app.route('/comment_comment', methods=['POST', 'GET'])
+# '/action_comment' is how viewpost.html calls comment()
+def comment_comment():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+
+    parent_id = int(request.args.get("parent"))
+    print(parent_id)
+    parent = Comment.query.filter(Comment.id == parent_id).first()
+    if not post:
+        return error("That post does not exist!")
+    content = request.form['content']
+    #joe added content2 and changed comment
+    content2 = links(content)
+    if not parent:
+        return error("This parent comment does not exist!")
+
+    # Like button
+    like_counter = 0
+    if request.method == 'POST':
+        if request.form.get('action1') == 'Like':
+            print('hello')
+
+    # replaces key word with emoji
+    if '*wink*' in content:
+        content = content.replace('*wink*', '\U0001F609')
+    if '*smile*' in content:
+        content = content.replace('*smile*', '\U0001F600')
+    if '*like*' in content:
+        content = content.replace('*like*', '\U0001F44D')
+
+    postdate = datetime.datetime.now()
+    #  content, postdate, user_id, post_id, parent_comment_id = None
+    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    # this creates an instance of comment
+    # go to the post table, go to the comments column, and then add the comment
+    db.session.add(comment)
+    db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
 
 
 @login_required
@@ -194,6 +251,36 @@ def generateLinkPath(subforumid):
 
 # from forum.app import db, app
 
+
+@app.route('/user/<username>')
+def user(username):
+	user = User.query.filter(User.username == username).first()
+	userid = User.query.filter(User.id == username).first()
+	posts = [
+		{'author': user, 'body': 'Test post #1'},
+		{'author': user, 'body': 'Test post #2'}]
+	# posts = [Post.user_id == userid]
+	return render_template('user_profile.html', user=user, userid = userid, posts = posts)
+
+
+@app.route('/edit/<username>', methods=['POST', 'GET'])
+@login_required
+def action_edit_user(username):
+	user = User.query.filter(User.username == username).first()
+	if request.method == 'POST' and current_user == user:
+		user.about = request.form['about']
+		db.session.commit()
+
+	# background_color = request.form['background']
+		return render_template('edit_user.html', user=user)
+	elif current_user != user:
+		return render_template('user_profile.html', user=user)
+	else:
+		return render_template('edit_user.html', user=user)
+
+# from forum.app import db, app
+
+
 # calling login Manager application
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -252,9 +339,12 @@ class User(UserMixin, db.Model):
 	username = db.Column(db.Text, unique=True)
 	password_hash = db.Column(db.Text)
 	email = db.Column(db.Text, unique=True)
-	admin = db.Column(db.Boolean, default=False, unique=True)
+	# admin = db.Column(db.Boolean, default=False, unique=True)
 	posts = db.relationship("Post", backref="user")
 	comments = db.relationship("Comment", backref="user")
+	about = db.Column(db.Text)
+	avatar = db.Column(db.Integer, default = 0)
+	background_color = db.Column(db.Text, default = "#77898B")
 
 	def __init__(self, email, username, password):
 		self.email = email
@@ -362,6 +452,10 @@ class Comment(db.Model):
 			self.savedresponce =  "Just a moment ago!"
 		return self.savedresponce
 
+# class emojis();
+# 	id = db.column(db.Integer, primary_key=True)
+# 	postid = db.column(db.Integer)
+# 	userid = db.column(db.Integer)
 
 def init_site():
 	admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")
@@ -430,7 +524,7 @@ def setup():
 		interpret_site_value(value)
 """
 
-
+# db.drop_all() #the NUKE
 db.create_all()
 if not Subforum.query.all():
 		init_site()

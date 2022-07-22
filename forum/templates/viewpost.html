@@ -6,7 +6,7 @@
 	<div class="actualposttitle">
 		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
-			{{ post.user.username }}
+			<a href="/user/{{ post.user.username }}">{{ post.user.username }}</a>
 
 		</div>
 		<div class="posttime">
@@ -16,6 +16,34 @@
 	<div class="postcontent">
 		{{post.content}}
 	</div>
+
+	<!--add react buttons on posts-->
+	<body>
+		<input type = "button" class = "btn btn-danger" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>
+		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>
+	<script>
+
+		var counter1 = 0;
+		var counter2 = 0;
+
+
+		function likeCounter(){
+			var add1 = (function () {
+				return counter1 += 1;
+			})
+			document.getElementById("likeTotal").innerHTML = add1();
+		}
+
+		function dislikeCounter() {
+			var add2 = (function (){
+				return counter2 += 1;
+			})
+			document.getElementById("dislikeTotal").innerHTML = add2();
+		}
+
+		</script>
+
+
 
 </div>
 <div class="addcomment" id="addcomment">
@@ -41,7 +69,7 @@
 	
 	<div class="comment">
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}><a href="/user/{{ comment.user.username }}">{{ comment.user.username }}</a></span>) -
 		</div>
 		<div class="commentcontent">
 			{{ comment.content }}
@@ -70,6 +98,7 @@ function toggle(){
 	
 }
 </script>
+<script type="text/javascript">
 
 
 {% endblock %}

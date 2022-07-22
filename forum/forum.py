@@ -261,7 +261,6 @@ def action_edit_user(username):
 		db.session.commit()
 
 	# background_color = request.form['background']
-	# user.about ='testing'
 		return render_template('edit_user.html', user=user)
 	elif current_user != user:
 		return render_template('user_profile.html', user=user)

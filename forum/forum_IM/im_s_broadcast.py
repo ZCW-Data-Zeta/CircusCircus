@@ -1,5 +1,6 @@
 from im_server import clients
 
+
 # manage message signal
 def broadcast(message):
     for client in clients:

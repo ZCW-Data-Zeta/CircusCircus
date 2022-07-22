@@ -269,7 +269,6 @@ def action_edit_user(username):
 		return render_template('edit_user.html', user=user)
 	
 	
-img.path = request.form['path']
 
 #from forum.app import db, app 
 
@@ -421,10 +420,10 @@ class Comment(db.Model):
 			self.savedresponce =  "Just a moment ago!"
 		return self.savedresponce
 
-class emojis();
-	id = db.column(db.Integer, primary_key=True)
-	postid = db.column(db.Integer)
-	userid = db.column(db.Integer)
+# class emojis();
+# 	id = db.column(db.Integer, primary_key=True)
+# 	postid = db.column(db.Integer)
+# 	userid = db.column(db.Integer)
 
 def init_site():
 	admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")

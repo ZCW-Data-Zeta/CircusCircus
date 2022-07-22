@@ -6,7 +6,7 @@
 	<div class="actualposttitle">
 		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
-			{{ post.user.username }}
+			<a href="/user/{{ post.user.username }}">{{ post.user.username }}</a>
 
 		</div>
 		<div class="posttime">

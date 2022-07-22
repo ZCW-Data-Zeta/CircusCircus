@@ -4,10 +4,11 @@
     send trigger to client network handler (^)
 """
 from im_client import server, nicknames, clients, HOST, PORT
-# from im_c_handle
+import im_c_handle
 
 import socket
 import threading
+import im_c_broadcast
 
 
 def receive():
@@ -23,10 +24,10 @@ def receive():
         nickname.appent(nickname)
 
         print(f"Nickname of the client is {nickname}")
-        broadcast(f"{nickname} connected to server \n".encode("utf-8"))
+        im_c_broadcast(f"{nickname} connected to server \n".encode("utf-8"))
         client.send("Connected to server".encode("utf-8"))
 
-        thread = threading.thread(target=handle, args=(client,))
+        thread = threading.thread(target=im_c_handle, args=(client,))
         # start threading, passing the comma in args= to make tuple
         thread.start()
 

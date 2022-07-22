@@ -288,6 +288,9 @@ class User(UserMixin, db.Model):
     admin = db.Column(db.Boolean, default=False, unique=True)
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
+    about = db.Column(db.Text)
+    avatar = db.Column(db.Integer, default=0)
+    background_color = db.Column(db.Text, default="#77898B")
 
     def __init__(self, email, username, password):
         self.email = email
@@ -307,9 +310,7 @@ class Post(db.Model):
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
     private = db.Column(db.Boolean, default=False)
-    about = db.Column(db.Text)
-    avatar = db.Column(db.Integer, default=0)
-    background_color = db.Column(db.Text, default="#77898B")
+
 
     # cache stuff
     lastcheck = None

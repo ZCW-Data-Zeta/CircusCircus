@@ -12,11 +12,9 @@
 	padding-left: 3%;
 	padding-right: 3%;
 
-<<<<<<< HEAD
-	background-color: #778989;
-=======
+
 	background-color:azure;
->>>>>>> origin
+
 
 }
 .header{
@@ -254,7 +252,7 @@
 
 .footer-basic .copyright {
   margin-top:15px;
-  text-align:right;
+  text-align:center;
   font-size:13px;
   color:#aaa;
   margin-bottom:0;

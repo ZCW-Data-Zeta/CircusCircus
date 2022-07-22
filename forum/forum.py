@@ -219,7 +219,13 @@ def action_edit_user(username):
     if request.method == 'POST' and current_user == user:
         user.about = request.form['about']
         db.session.commit()
-# from forum.app import db, app
+
+        # background_color = request.form['background']
+        return render_template('edit_user.html', user=user)
+    elif current_user != user:
+        return render_template('user_profile.html', user=user)
+    else:
+        return render_template('edit_user.html', user=user)
 
 
 login_manager = LoginManager()

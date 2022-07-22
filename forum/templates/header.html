@@ -6,10 +6,8 @@
 	  <b>{{ config.SITE_NAME }}</b>
 	{% if config.SITE_DESCRIPTION %} - {% endif %} <i>{{ config.SITE_DESCRIPTION }}</i>
 </nav>
-<div class="login">
 	{% if current_user.is_authenticated %}
 	<b {% if current_user.admin %} style="color: red;" {% endif %}>{{ current_user.username }}</b><a class="logoutlink" href="/action_logout">(logout)</a>
 	{% else %}
 	<a href="/loginform">Click here to login or register!</a>
 	{% endif %}
-</div>

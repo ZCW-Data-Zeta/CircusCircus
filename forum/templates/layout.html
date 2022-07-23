@@ -3,6 +3,7 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='bootstrap.min.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{ config.SITE_NAME }}</title>
 </head>
 <body>
@@ -25,11 +26,11 @@
 	</div>
 </div>
 </body>
-
+<footer>
 <div class="page">
 	<div class="footer-basic">
 			{%include 'footer.html'%}
-		<div>
+		</div>
 			{% if errors %}
 			<div class="errors">
 				{% for error in errors%}
@@ -41,5 +42,7 @@
 		{% endif %}
 		<div class="content">
 			{% block footer %}{% endblock %}
-
+		</div>
+</div>
+</footer>
 </html>

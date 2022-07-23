@@ -18,12 +18,12 @@
 }
 .header{
 	border: 1px solid black;
+	border-radius: 1em;
 	overflow: hidden;
 	vertical-align: middle;
 	padding: 0.5%;
 	margin-bottom: none;
 
-	background-color: #F0FFFF;
 }
 .content{
 	margin-top: 0.5%;
@@ -87,6 +87,7 @@
 	padding-bottom: none;
 	margin-bottom: 0.5%;
 	border: 1px solid black;
+	border-radius: 1em;
 	font-size: 15pt;
 }
 .subforumheadertitle{
@@ -120,7 +121,8 @@
 	padding: 1%;
 }
 .subsubforums{
-	border: 1px solid black;
+	border: 1px solid gray;
+	border-radius: 1em;
 	padding: 0.5%;
 	margin-top: 0.5%;
 	padding-left: 1%;

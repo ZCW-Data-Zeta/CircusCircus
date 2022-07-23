@@ -101,7 +101,7 @@ def comment():
 
 	return redirect("/viewpost?post=" + str(post_id))
 
-@app.route('/like-post/<id>', methods=['POST', 'GET'])
+@app.route('/like-post/<id>', methods=['GET'])
 @login_required
 def like (post_id):
 	post = Post.query.filter_by(id=post_id)
@@ -116,12 +116,7 @@ def like (post_id):
 		like= like(author= current_user.id, post_id= post_id)
 		db.session.delete(like)
 		db.session.commit()
-	return redirect(url_for('views.like'))
-
-
-
-
-
+	return redirect(url_for('views.home'))
 
 
 @login_required
@@ -137,8 +132,7 @@ def comment_comment():
     if not post:
         return error("That post does not exist!")
     content = request.form['content']
-    #joe added content2 and changed comment
-    content2 = links(content)
+
     if not parent:
         return error("This parent comment does not exist!")
 
@@ -149,16 +143,16 @@ def comment_comment():
             print('hello')
 
     # replaces key word with emoji
-    if '*wink*' in content:
-        content = content.replace('*wink*', '\U0001F609')
-    if '*smile*' in content:
-        content = content.replace('*smile*', '\U0001F600')
-    if '*like*' in content:
-        content = content.replace('*like*', '\U0001F44D')
+    # if '*wink*' in content:
+    #     content = content.replace('*wink*', '\U0001F609')
+    # if '*smile*' in content:
+    #     content = content.replace('*smile*', '\U0001F600')
+    # if '*like*' in content:
+    #     content = content.replace('*like*', '\U0001F44D')
 
     postdate = datetime.datetime.now()
     #  content, postdate, user_id, post_id, parent_comment_id = None
-    comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
+    # comment = Comment(content2, postdate, current_user.id, post_id, parent_comment_id=parent_id)
     # this creates an instance of comment
     # go to the post table, go to the comments column, and then add the comment
     db.session.add(comment)
@@ -422,11 +416,6 @@ class Like(db.Model):
 	postdate = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-
-
-
-
-
 
 
 	lastcheck = None

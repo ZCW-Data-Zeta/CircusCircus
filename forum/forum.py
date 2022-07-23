@@ -2,7 +2,6 @@ from flask import *
 #from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
-
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
@@ -101,6 +100,29 @@ def comment():
 
 
 	return redirect("/viewpost?post=" + str(post_id))
+
+@app.route('/like-post/<id>', methods=['POST', 'GET'])
+@login_required
+def like (post_id):
+	post = Post.query.filter_by(id=post_id)
+	like= Like.query.filter_by(author=current_user.id, post_id=post_id).first()
+
+	if not post:
+		flash('Post does not exist.', category='error')
+	elif like:
+		db.session.delete(like)
+		db.session.commit()
+	else:
+		like= like(author= current_user.id, post_id= post_id)
+		db.session.delete(like)
+		db.session.commit()
+	return redirect(url_for('views.like'))
+
+
+
+
+
+
 
 @login_required
 @app.route('/comment_comment', methods=['POST', 'GET'])
@@ -320,6 +342,7 @@ class User(UserMixin, db.Model):
 	# admin = db.Column(db.Boolean, default=False, unique=True)
 	posts = db.relationship("Post", backref="user")
 	comments = db.relationship("Comment", backref="user")
+	Like = db.relationship("Like", backref="post")
 	about = db.Column(db.Text)
 	avatar = db.Column(db.Integer, default = 0)
 	background_color = db.Column(db.Text, default = "#77898B")
@@ -338,6 +361,7 @@ class Post(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
+	Like = db.relationship("Post", backref="post")
 
 	#cache stuff
 	lastcheck = None
@@ -391,6 +415,19 @@ class Comment(db.Model):
 	postdate = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+	Like = db.relationship("Comment", backref="post")
+
+class Like(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	postdate = db.Column(db.DateTime)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+
+
+
+
+
+
 
 	lastcheck = None
 	savedresponce = None

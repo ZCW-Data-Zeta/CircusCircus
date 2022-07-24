@@ -210,9 +210,11 @@ def generateLinkPath(subforumid):
 def user(username):
     user = User.query.filter(User.username == username).first()
     userid = User.query.filter(User.id == username).first()
-    posts = [
-        {'author': user, 'body': 'Test post #1'},
-        {'author': user, 'body': 'Test post #2'}]
+    # posts = [
+    #     {'author': user, 'body': 'Test post #1'},
+    #     {'author': user, 'body': 'Test post #2'}]
+    posts = Post.query.filter(Post.user_id == user.id).order_by(Post.id.desc()).limit(50)
+
     # posts = [Post.user_id == userid]
     return render_template('user_profile.html', user=user, userid=userid, posts=posts)
 

@@ -95,7 +95,7 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    image_path = ''
+    # image_path = ''
     if post.private == True:
         if not current_user.is_authenticated:
             return render_template("login.html")
@@ -103,11 +103,11 @@ def viewpost():
         return error("That post does not exist!")
     if not post.subforum.path:
         subforum.path = generateLinkPath(post.subforum.id)
-    if post.image is not '':
-        image_path = url_for('static',filename='uploads/' + post.image)
+    # if post.image is not '':
+    #     image_path = url_for('static',filename='uploads/' + post.image)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(
         Comment.id.desc())  # no need for scalability now
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, image_path=image_path)
+    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
 
 
 # ACTIONS
@@ -157,7 +157,7 @@ def action_post():
     file = request.files['image']
     filename = ''
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = filename + secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
     post = Post(title, content, datetime.datetime.now(), private, filename)

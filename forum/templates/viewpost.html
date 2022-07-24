@@ -14,14 +14,17 @@
 		</div>
 	</div>
 	<div class="postcontent">
-		{{ post.content|markdown }}  {{ post.image }}
+		{{ post.content|markdown }} {{ post.image }}
 	</div>
 
-	<img width="500" src="image_path">
+	{%if post.image%}
+	<img width="500" src="static/uploads/{{ post.image }}">
 
+	{% endif %}
 
 	<!--add react buttons on posts-->
 	<body>
+	<br>
 		<input type = "button" class = "btn btn-danger" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>
 		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>
 	<script>

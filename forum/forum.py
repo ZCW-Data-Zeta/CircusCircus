@@ -85,25 +85,11 @@ def comment():
 	post.comments.append(comment)
 	db.session.commit()
 	content = request.form['content']
-
-
-	# Like button
-
-	# replaces key word with emoji
-	if '*wink*' in content:
-		content = content.replace('*wink*', '\U0001F609')
-	if '*smile*' in content:
-		content = content.replace('*smile*', '\U0001F600')
-	if '*like*' in content:
-		content = content.replace('*like*', '\U0001F44D')
-
-
-
 	return redirect("/viewpost?post=" + str(post_id))
 
 @app.route('/like-post/<id>', methods=['GET'])
 @login_required
-def like (post_id):
+def like(post_id):
 	post = Post.query.filter_by(id=post_id)
 	like= Like.query.filter_by(author=current_user.id, post_id=post_id).first()
 
@@ -140,15 +126,8 @@ def comment_comment():
     like_counter = 0
     if request.method == 'POST':
         if request.form.get('action1') == 'Like':
-            print('hello')
+          print()
 
-    # replaces key word with emoji
-    # if '*wink*' in content:
-    #     content = content.replace('*wink*', '\U0001F609')
-    # if '*smile*' in content:
-    #     content = content.replace('*smile*', '\U0001F600')
-    # if '*like*' in content:
-    #     content = content.replace('*like*', '\U0001F44D')
 
     postdate = datetime.datetime.now()
     #  content, postdate, user_id, post_id, parent_comment_id = None
@@ -268,6 +247,7 @@ def user(username):
 	return render_template('user_profile.html', user=user, userid = userid, posts = posts)
 
 
+
 @app.route('/edit/<username>', methods=['POST', 'GET'])
 @login_required
 def action_edit_user(username):
@@ -336,10 +316,15 @@ class User(UserMixin, db.Model):
 	# admin = db.Column(db.Boolean, default=False, unique=True)
 	posts = db.relationship("Post", backref="user")
 	comments = db.relationship("Comment", backref="user")
-	Like = db.relationship("Like", backref="post")
+	# Like = db.relationship("Like", backref="post")
 	about = db.Column(db.Text)
 	avatar = db.Column(db.Integer, default = 0)
 	background_color = db.Column(db.Text, default = "#77898B")
+	liked = db.relationship(
+		'Post', secondary="likes",
+		primaryjoin="likes.likes_id == users.id",
+		secondaryjoin="likes.likes_id == posts.id",
+		backref=db.backref('likes', lazy='dynamic'), lazy='dynamic')
 
 	def __init__(self, email, username, password):
 		self.email = email
@@ -355,7 +340,8 @@ class Post(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
-	Like = db.relationship("Post", backref="post")
+	# Like = db.relationship("Post", backref="post")
+	like = db.Column("Post", backref="post")
 
 	#cache stuff
 	lastcheck = None
@@ -412,6 +398,7 @@ class Comment(db.Model):
 	Like = db.relationship("Comment", backref="post")
 
 class Like(db.Model):
+	__tablename__ = 'like'
 	id = db.Column(db.Integer, primary_key=True)
 	postdate = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

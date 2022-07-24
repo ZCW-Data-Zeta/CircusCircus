@@ -14,6 +14,10 @@ import re
 import datetime
 from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import os
+
+
 
 # adding db url
 import os
@@ -27,9 +31,29 @@ else:
 db = SQLAlchemy(app)
 Markdown(app)
 env = jinja2.Environment()
-# env.filters['markdown'] = lambda text: jinja2.Markup(md.convert(text))
+ALLOWED_EXTENSIONS = set(['png','jpg','jpeg','gif'])
 
 # VIEWS
+
+
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['image']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
+
 
 @app.route('/')
 def index():
@@ -71,6 +95,7 @@ def addpost():
 def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
+    image_path = ''
     if post.private == True:
         if not current_user.is_authenticated:
             return render_template("login.html")
@@ -78,9 +103,11 @@ def viewpost():
         return error("That post does not exist!")
     if not post.subforum.path:
         subforum.path = generateLinkPath(post.subforum.id)
+    if post.image is not '':
+        image_path = url_for('static',filename='uploads/' + post.image)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(
         Comment.id.desc())  # no need for scalability now
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, image_path=image_path)
 
 
 # ACTIONS
@@ -108,7 +135,6 @@ def action_post():
     subforum = Subforum.query.filter(Subforum.id == subforum_id).first()
     if not subforum:
         return redirect(url_for("subforums"))
-
     user = current_user
     title = request.form['title']
     content = request.form['content']
@@ -128,7 +154,13 @@ def action_post():
         retry = True
     if retry:
         return render_template("createpost.html", subforum=subforum, errors=errors)
-    post = Post(title, content, datetime.datetime.now(), private)
+    file = request.files['image']
+    filename = ''
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    post = Post(title, content, datetime.datetime.now(), private, filename)
     subforum.posts.append(post)
     user.posts.append(post)
     db.session.commit()
@@ -287,6 +319,10 @@ def valid_content(content):
     return len(content) > 10 and len(content) < 5000
 
 
+def allowed_file(filename):
+    return '.'in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 # OBJECT MODELS
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -318,17 +354,19 @@ class Post(db.Model):
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
     private = db.Column(db.Boolean, default=False)
+    image = db.Column(db.Text)
 
 
     # cache stuff
     lastcheck = None
     savedresponce = None
 
-    def __init__(self, title, content, postdate, private):
+    def __init__(self, title, content, postdate, private, image):
         self.title = title
         self.content = content
         self.postdate = postdate
         self.private = private
+        self.image = image
 
     def get_time_string(self):
         # this only needs to be calculated every so often, not for every request

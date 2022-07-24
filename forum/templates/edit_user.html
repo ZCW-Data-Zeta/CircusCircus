@@ -4,7 +4,8 @@
     <h1>User: {{ user.username }}</h1>
     <hr>
     <form method="POST">
-        <textarea class="inputbox" rows="15" cols="80"  name="about" placeholder={{ user.about }}></textarea><br>
+        <textarea class="inputbox" rows="12" cols="69"  name="about" >{{ user.about }}</textarea><br>
+
         <input type="submit", onClick="alert('Updated!'">
     </form>
 

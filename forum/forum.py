@@ -217,10 +217,12 @@ def user(username):
 @login_required
 def action_edit_user(username):
     user = User.query.filter(User.username == username).first()
+
     if request.method == 'POST' and current_user == user:
+        # about_updated = False
         user.about = request.form['about']
         db.session.commit()
-
+        # about_updated = True
     # background_color = request.form['background']
         return render_template('edit_user.html', user=user)
     elif current_user != user:

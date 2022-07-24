@@ -14,7 +14,7 @@
 		</div>
 	</div>
 	<div class="postcontent">
-		{{post.content}}
+		{{ post.content|markdown }}
 	</div>
 
 	<!--add react buttons on posts-->
@@ -72,7 +72,7 @@
 			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}><a href="/user/{{ comment.user.username }}">{{ comment.user.username }}</a></span>) -
 		</div>
 		<div class="commentcontent">
-			{{ comment.content }}
+			{{ comment.content|markdown }}
 		</div>
 		
 		<div class="commenttime">

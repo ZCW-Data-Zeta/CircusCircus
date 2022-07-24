@@ -3,6 +3,8 @@ from flask import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
 
+import jinja2
+from flaskext.markdown import Markdown
 from flask_login.utils import login_required
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
@@ -23,7 +25,9 @@ else:
     print("DATABASE_URL is not set, using sqlite")
 
 db = SQLAlchemy(app)
-
+Markdown(app)
+env = jinja2.Environment()
+# env.filters['markdown'] = lambda text: jinja2.Markup(md.convert(text))
 
 # VIEWS
 

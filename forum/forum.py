@@ -32,6 +32,7 @@ from werkzeug.utils import secure_filename
 # import os
 # adding db url
 import os
+import forum.db_checks
 
 if os.getenv("DATABASE_URL"):
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -45,7 +46,7 @@ env = jinja2.Environment()
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
-import db_checks
+
 # adding in packaging files
 
 # --- VIEWS ---
@@ -389,7 +390,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
     like = db.relationship("Like", backref="user")
-    about = db.Column(db.Text)
+    about = db.Column(db.Text, default='this user has not set an account')
     avatar = db.Column(db.Integer, default=0)
     background_color = db.Column(db.Text, default="#77898B")
 
@@ -586,7 +587,7 @@ def setup():
 		interpret_site_value(value)
 """
 
-# db.drop_all()  # the NUKE
+#db.drop_all()  # the NUKE
 db.create_all()
 if not Subforum.query.all():
     init_site()

@@ -336,7 +336,7 @@ login_manager.init_app(app)
 def load_user(userid):
     return User.query.get(userid)
 
-
+# do these need to be down here?
 password_regex = re.compile("^[a-zA-Z0-9!@#%&]{6,40}$")
 username_regex = re.compile("^[a-zA-Z0-9!@#%&]{4,40}$")
 
@@ -512,6 +512,7 @@ class Like(db.Model):
     def __init__(self, user_id, post_id):
         self.user_id = user_id
         self.post_id = post_id
+
 
 def init_site():
     admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")

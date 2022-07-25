@@ -6,7 +6,7 @@
 	<div class="actualposttitle">
 		<a href="/viewpost?post={{ post.id }}">{{post.title}}</a>
 		<div class="postposter" {% if post.user.admin %} style="color: red;" {% endif %}>
-			{{ post.user.username }}
+			<a href="/user/{{ post.user.username }}">{{ post.user.username }}</a>
 
 		</div>
 		<div class="posttime">
@@ -14,11 +14,17 @@
 		</div>
 	</div>
 	<div class="postcontent">
-		{{post.content}}
+		{{ post.content|markdown }} {{ post.image }}
 	</div>
+
+	{%if post.image%}
+	<img width="500" src="static/uploads/{{ post.image }}">
+
+	{% endif %}
 
 	<!--add react buttons on posts-->
 	<body>
+
 
 	<form action="/like-post?post={{ post.id }}" method="POST">
 <!--		<input type = "button" class = "btn btn-default" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>-->
@@ -82,10 +88,10 @@
 	
 	<div class="comment">
 		<div class="commentuser">
-			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}>{{ comment.user.username }}</span>) - 
+			(<span  {% if comment.user.admin %} style="color: red;" {% endif %}><a href="/user/{{ comment.user.username }}">{{ comment.user.username }}</a></span>) -
 		</div>
 		<div class="commentcontent">
-			{{ comment.content }}
+			{{ comment.content|markdown }}
 		</div>
 		
 		<div class="commenttime">

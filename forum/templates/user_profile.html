@@ -1,12 +1,33 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h1>User: {{ user.username }}</h1>
+    <h1>User:    {{ user.username }}</h1>
     <hr>
-    <h2>About Me: {{ user.about }}</h2>
-    {% for post in posts %}
-    <p>
-    {{ post.title }}
-    </p>
-    {% endfor %}
+<!--	<div class="card"></div>-->
+<h2><b>About Me:</b></h2>
+	<div class="p-3 mb-2 bg-light text-black">
+    {{ user.about|markdown }}
+	</div>
+<h2><b>Posts by {{ user.username }}:</b> </h2>
+{% if posts.first() %}
+	{% for post in posts %}
+	<div class="post">
+	<div class="p-3 mb-2 bg-light text-black">
+		<div class="posttitle">
+		<a href="/viewpost?post={{ post.id }}">{{ post.title }}</a>
+		</div>
+<!--		<div class="postusername">-->
+<!--			by <b {% if post.user.admin %} style="color: red;" {% endif %}> <a href="/user/{{ post.user.username }}">{{ post.user.username }}</a></b>-->
+			<div class="date">
+			{{ post.get_time_string() }}
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+
+{% else %}
+<div class="noposts">
+<b>There are no posts from this user!</b>
+</div>
+{% endif %}
 {% endblock %}

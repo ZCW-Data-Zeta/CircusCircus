@@ -24,11 +24,16 @@
 
 	<!--add react buttons on posts-->
 	<body>
-	<br>
-		<input type = "button" class = "btn btn-danger" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>
-		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>
-	<script>
 
+
+	<form action="/like-post?post={{ post.id }}" method="POST">
+<!--		<input type = "button" class = "btn btn-default" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>-->
+<!--		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>-->
+
+	<input class="inputbox" type="submit" value="&#128077"> <p>{{num_likes}}</p>
+
+	</form>
+	<script>
 		var counter1 = 0;
 		var counter2 = 0;
 
@@ -48,10 +53,19 @@
 		}
 
 		</script>
+	</div>
+{% for post in posts %}
+    {% if current_user.is_authenticated %}
+        {% if current_user.has_liked_post(post) %}
+            <a href="{{ url_for('like_action', post_id=post.id, action='unlike') }}">Unlike</a>
+        {% else %}
+            <a href="{{ url_for('like_action', post_id=post.id, action='like') }}">Like</a>
+        {% endif %}
+        {{ post.likes.count() }} likes
+    {% else %}
+        {{ post.likes.count() }} likes
+    {% endif %}{% endfor %}
 
-
-
-</div>
 <div class="addcomment" id="addcomment">
 	<form action="/action_comment?post={{ post.id }}" method="POST">
 		<textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
@@ -60,7 +74,6 @@
 </div>
 <div style="text-align: center;">
 
-	
 
 	{% if current_user.is_authenticated %}
 	<input type="button" id="displayaddcomment" onclick="toggle()" value="Add a comment">

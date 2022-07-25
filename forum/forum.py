@@ -1,23 +1,33 @@
+"""
+    forum project by ZCW Data Cohort 3.1 Group Zeta
+    Hawaiian shirt enthusiast forum
+"""
+# import statements
 from flask import *
-# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
-import datetime
 
+# from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
+# import datetime
+
+# markdown support
 import jinja2
 from flaskext.markdown import Markdown
 
-from flask_login.utils import login_required
+# forum db setup
 from forum.app import app
 from flask_sqlalchemy import SQLAlchemy
 
+from flask_login.utils import login_required
 from flask_login import UserMixin
+
+# misc utils
 import re
 import datetime
 from flask_login.login_manager import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os
 
+# import os
 # adding db url
 import os
 

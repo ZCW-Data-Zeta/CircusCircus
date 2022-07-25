@@ -3,7 +3,6 @@ from flask import *
 from flask_login import LoginManager, current_user, login_user, logout_user
 import datetime
 
-
 import jinja2
 from flaskext.markdown import Markdown
 
@@ -19,8 +18,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 
-
-
 # adding db url
 import os
 
@@ -33,7 +30,8 @@ else:
 db = SQLAlchemy(app)
 Markdown(app)
 env = jinja2.Environment()
-ALLOWED_EXTENSIONS = set(['png','jpg','jpeg','gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
 
 # VIEWS
 
@@ -95,10 +93,9 @@ def addpost():
 
 @app.route('/viewpost')
 def viewpost():
-
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
-    num_likes= Like.query.filter(Like.post_id== postid).count()
+    num_likes = Like.query.filter(Like.post_id == postid).count()
     # image_path = ''
     if post.private == True:
         if not current_user.is_authenticated:
@@ -119,48 +116,47 @@ def viewpost():
 @login_required
 @app.route('/action_comment', methods=['POST', 'GET'])
 def comment():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    if not post:
+        return error("That post does not exist!")
+    content = request.form['content']
+    postdate = datetime.datetime.now()
+    comment = Comment(content, postdate)
+    current_user.comments.append(comment)
+    post.comments.append(comment)
+    db.session.commit()
+    content = request.form['content']
+    return redirect("/viewpost?post=" + str(post_id))
 
-	post_id = int(request.args.get("post"))
-	post = Post.query.filter(Post.id == post_id).first()
-	if not post:
-		return error("That post does not exist!")
-	content = request.form['content']
-	postdate = datetime.datetime.now()
-	comment = Comment(content, postdate)
-	current_user.comments.append(comment)
-	post.comments.append(comment)
-	db.session.commit()
-	content = request.form['content']
-	return redirect("/viewpost?post=" + str(post_id))
 
-@app.route('/like-post', methods=['POST','GET'])
+@app.route('/like-post', methods=['POST', 'GET'])
 @login_required
 def like():
-	post_id = int(request.args.get("post"))
-	post = Post.query.filter(Post.id == post_id).first()
-	# post = Post.query.filter_by(id=post_id)
-	like= Like.query.filter(Like.user_id==current_user.id).first()
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    # post = Post.query.filter_by(id=post_id)
+    like = Like.query.filter(Like.user_id == current_user.id).first()
 
-	# post = Post.query.filter(Post.id == post_id).first()
-	if not post:
-		flash('Post does not exist.', category='error')
-	elif like:
-		db.session.delete(like)
-		db.session.commit()
-	else:
-		like = Like(current_user.id, post_id)
-		current_user.like.append(like)
-		post.like.append(like)
-		# db.session.delete(like)
-		db.session.commit()
-	return redirect("/viewpost?post="+ str(post_id))
+    # post = Post.query.filter(Post.id == post_id).first()
+    if not post:
+        flash('Post does not exist.', category='error')
+    elif like:
+        db.session.delete(like)
+        db.session.commit()
+    else:
+        like = Like(current_user.id, post_id)
+        current_user.like.append(like)
+        post.like.append(like)
+        # db.session.delete(like)
+        db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
 
 
 @login_required
 @app.route('/comment_comment', methods=['POST', 'GET'])
 # '/action_comment' is how viewpost.html calls comment()
 def comment_comment():
-
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     if not post:
@@ -297,7 +293,6 @@ def user(username):
     return render_template('user_profile.html', user=user, userid=userid, posts=posts)
 
 
-
 @app.route('/edit/<username>', methods=['POST', 'GET'])
 @login_required
 def action_edit_user(username):
@@ -308,7 +303,7 @@ def action_edit_user(username):
         user.about = request.form['about']
         db.session.commit()
         # about_updated = True
-    # background_color = request.form['background']
+        # background_color = request.form['background']
         return render_template('edit_user.html', user=user)
     elif current_user != user:
         return render_template('user_profile.html', user=user)
@@ -367,81 +362,80 @@ def valid_content(content):
 
 
 def allowed_file(filename):
-    return '.'in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # OBJECT MODELS
 class User(UserMixin, db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.Text, unique=True)
-	password_hash = db.Column(db.Text)
-	email = db.Column(db.Text, unique=True)
-	# admin = db.Column(db.Boolean, default=False, unique=True)
-	posts = db.relationship("Post", backref="user")
-	comments = db.relationship("Comment", backref="user")
-	like = db.relationship("Like", backref="user")
-	about = db.Column(db.Text)
-	avatar = db.Column(db.Integer, default = 0)
-	background_color = db.Column(db.Text, default = "#77898B")
-	
-	def __init__(self, email, username, password):
-		self.email = email
-		self.username = username
-		self.password_hash = generate_password_hash(password)
-    
-	def check_password(self, password):
-		return check_password_hash(self.password_hash, password)
-    
-    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.Text, unique=True)
+    password_hash = db.Column(db.Text)
+    email = db.Column(db.Text, unique=True)
+    # admin = db.Column(db.Boolean, default=False, unique=True)
+    posts = db.relationship("Post", backref="user")
+    comments = db.relationship("Comment", backref="user")
+    like = db.relationship("Like", backref="user")
+    about = db.Column(db.Text)
+    avatar = db.Column(db.Integer, default=0)
+    background_color = db.Column(db.Text, default="#77898B")
+
+    def __init__(self, email, username, password):
+        self.email = email
+        self.username = username
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
 class Post(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	title = db.Column(db.Text)
-	content = db.Column(db.Text)
-	comments = db.relationship("Comment", backref="post")
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
-	postdate = db.Column(db.DateTime)
-	like = db.relationship("Like", backref="post")
-  private = db.Column(db.Boolean, default=False)
-  image = db.Column(db.Text)
-  
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text)
+    content = db.Column(db.Text)
+    comments = db.relationship("Comment", backref="post")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
+    postdate = db.Column(db.DateTime)
+    like = db.relationship("Like", backref="post")
+    private = db.Column(db.Boolean, default=False)
+    image = db.Column(db.Text)
 
-	#cache stuff
-	lastcheck = None
-	savedresponce = None
-	def __init__(self, title, content, postdate, private, image):
-		self.title = title
-		self.content = content
-		self.postdate = postdate
-    self.private = private
-    self.image = image
-    
-	def get_time_string(self):
-		#this only needs to be calculated every so often, not for every request
-		#this can be a rudamentary chache
-		now = datetime.datetime.now()
-		if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
-			self.lastcheck = now
-		else:
-			return self.savedresponce
+    # cache stuff
+    lastcheck = None
+    savedresponce = None
 
-		diff = now - self.postdate
+    def __init__(self, title, content, postdate, private, image):
+        self.title = title
+        self.content = content
+        self.postdate = postdate
+        self.private = private
+        self.image = image
 
-		seconds = diff.total_seconds()
-		print(seconds)
-		if seconds / (60 * 60 * 24 * 30) > 1:
-			self.savedresponce =  " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
-		elif seconds / (60 * 60 * 24) > 1:
-			self.savedresponce =  " " + str(int(seconds / (60*  60 * 24))) + " days ago"
-		elif seconds / (60 * 60) > 1:
-			self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
-		elif seconds / (60) > 1:
-			self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
-		else:
-			self.savedresponce =  "Just a moment ago!"
 
-    return self.savedresponce
+    def get_time_string(self):
+        # this only needs to be calculated every so often, not for every request
+        # this can be a rudamentary chache
+        now = datetime.datetime.now()
+        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
+            self.lastcheck = now
+        else:
+            return self.savedresponce
 
+        diff = now - self.postdate
+
+        seconds = diff.total_seconds()
+        print(seconds)
+        if seconds / (60 * 60 * 24 * 30) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
+        elif seconds / (60 * 60 * 24) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24))) + " days ago"
+        elif seconds / (60 * 60) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
+        elif seconds / (60) > 1:
+            self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
+        else:
+            self.savedresponce = "Just a moment ago!"
+        return self.savedresponce
 
 
 class Subforum(db.Model):
@@ -460,52 +454,54 @@ class Subforum(db.Model):
 
 
 class Comment(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	content = db.Column(db.Text)
-	postdate = db.Column(db.DateTime)
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-	# Like = db.relationship("Comment", backref="post")
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    postdate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+    # Like = db.relationship("Comment", backref="post")
 
-	lastcheck = None
-	savedresponce = None
-  
-	def __init__(self, content, postdate):
-		self.content = content
-		self.postdate = postdate
-    
-	def get_time_string(self):
-		#this only needs to be calculated every so often, not for every request
-		#this can be a rudamentary chache
-		now = datetime.datetime.now()
-		if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
-			self.lastcheck = now
-		else:
-			return self.savedresponce
+    lastcheck = None
+    savedresponce = None
 
-		diff = now - self.postdate
-		seconds = diff.total_seconds()
-		if seconds / (60 * 60 * 24 * 30) > 1:
-			self.savedresponce =  " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
-		elif seconds / (60 * 60 * 24) > 1:
-			self.savedresponce =  " " + str(int(seconds / (60*  60 * 24))) + " days ago"
-		elif seconds / (60 * 60) > 1:
-			self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
-		elif seconds / (60) > 1:
-			self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
-		else:
-			self.savedresponce =  "Just a moment ago!"
-		return self.savedresponce
+    def __init__(self, content, postdate):
+        self.content = content
+        self.postdate = postdate
+
+    def get_time_string(self):
+        # this only needs to be calculated every so often, not for every request
+        # this can be a rudamentary chache
+        now = datetime.datetime.now()
+        if self.lastcheck is None or (now - self.lastcheck).total_seconds() > 30:
+            self.lastcheck = now
+        else:
+            return self.savedresponce
+
+        diff = now - self.postdate
+        seconds = diff.total_seconds()
+        if seconds / (60 * 60 * 24 * 30) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24 * 30))) + " months ago"
+        elif seconds / (60 * 60 * 24) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60 * 24))) + " days ago"
+        elif seconds / (60 * 60) > 1:
+            self.savedresponce = " " + str(int(seconds / (60 * 60))) + " hours ago"
+        elif seconds / (60) > 1:
+            self.savedresponce = " " + str(int(seconds / 60)) + " minutes ago"
+        else:
+            self.savedresponce = "Just a moment ago!"
+        return self.savedresponce
 
 
 class Like(db.Model):
-	__tablename__ = 'like'
-	id = db.Column(db.Integer, primary_key=True)
-	# postdate = db.Column(db.DateTime)
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))   
+    __tablename__ = 'like'
+    id = db.Column(db.Integer, primary_key=True)
+    # postdate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
 
-
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
 
 def init_site():
     admin = add_subforum("Forum", "Announcements, bug reports, and general discussion about the forum belongs here")
@@ -575,7 +571,7 @@ def setup():
 		interpret_site_value(value)
 """
 
-# db.drop_all() #the NUKE
+# db.drop_all()  # the NUKE
 db.create_all()
 if not Subforum.query.all():
     init_site()

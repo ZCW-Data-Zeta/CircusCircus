@@ -96,6 +96,7 @@ def viewpost():
     postid = int(request.args.get("post"))
     post = Post.query.filter(Post.id == postid).first()
     num_likes = Like.query.filter(Like.post_id == postid).count()
+    num_dislikes = Dislike.query.filter(Dislike.post_id == postid).count()
     # image_path = ''
     if post.private == True:
         if not current_user.is_authenticated:
@@ -108,7 +109,7 @@ def viewpost():
     #     image_path = url_for('static',filename='uploads/' + post.image)
     comments = Comment.query.filter(Comment.post_id == postid).order_by(
         Comment.id.desc())  # no need for scalability now
-    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, num_likes=num_likes)
+    return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, num_likes=num_likes, num_dislikes=num_dislikes)
 
 
 # ACTIONS
@@ -148,6 +149,28 @@ def like():
         like = Like(current_user.id, post_id)
         current_user.like.append(like)
         post.like.append(like)
+        # db.session.delete(like)
+        db.session.commit()
+    return redirect("/viewpost?post=" + str(post_id))
+
+@app.route('/dislike-post', methods=['POST', 'GET'])
+@login_required
+def dislike():
+    post_id = int(request.args.get("post"))
+    post = Post.query.filter(Post.id == post_id).first()
+    # post = Post.query.filter_by(id=post_id)
+    dislike = Dislike.query.filter(Dislike.user_id == current_user.id).first()
+
+    # post = Post.query.filter(Post.id == post_id).first()
+    if not post:
+        flash('Post does not exist.', category='error')
+    elif dislike:
+        db.session.delete(dislike)
+        db.session.commit()
+    else:
+        dislike = Dislike(current_user.id, post_id)
+        current_user.dislike.append(dislike)
+        post.Dislike.append(dislike)
         # db.session.delete(like)
         db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
@@ -375,6 +398,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship("Post", backref="user")
     comments = db.relationship("Comment", backref="user")
     like = db.relationship("Like", backref="user")
+    dislike = db.relationship("Dislike", backref="user")
     about = db.Column(db.Text)
     avatar = db.Column(db.Integer, default=0)
     background_color = db.Column(db.Text, default="#77898B")
@@ -397,6 +421,7 @@ class Post(db.Model):
     subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
     postdate = db.Column(db.DateTime)
     like = db.relationship("Like", backref="post")
+    dislike = db.relationship("Dislike", backref="post")
     private = db.Column(db.Boolean, default=False)
     image = db.Column(db.Text)
 
@@ -498,6 +523,15 @@ class Like(db.Model):
     # postdate = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+
+class Dislike(db.Model):
+    __tablename__ = 'dislike'
+    id = db.Column(db.Integer, primary_key=True)
+    # postdate = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+
+
 
     def __init__(self, user_id, post_id):
         self.user_id = user_id

@@ -27,10 +27,12 @@
 
 
 	<form action="/like-post?post={{ post.id }}" method="POST">
+		<form action="/dislike-post?post={{ post.id }}" method="POST">
 <!--		<input type = "button" class = "btn btn-default" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>-->
 <!--		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>-->
 
-	<input class="inputbox" type="submit" value="&#128077"> <p>{{num_likes}}</p>
+	<input class="inputbox" type="submit" value="&#128077"> <p>{{num_likes}} </p>
+	<input class="inputbox" type="submit" value="&#128078"> <p>{{num_dislikes}}</p>
 
 	</form>
 	<script>

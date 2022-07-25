@@ -62,12 +62,13 @@ def addpost():
 def viewpost():
 	postid = int(request.args.get("post"))
 	post = Post.query.filter(Post.id == postid).first()
+	num_likes= Like.query.filter(Like.post_id== postid).count()
 	if not post:
 		return error("That post does not exist!")
 	if not post.subforum.path:
 		subforum.path = generateLinkPath(post.subforum.id)
 	comments = Comment.query.filter(Comment.post_id == postid).order_by(Comment.id.desc()) # no need for scalability now
-	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments)
+	return render_template("viewpost.html", post=post, path=subforum.path, comments=comments, num_likes=num_likes)
 
 #ACTIONS
 
@@ -87,22 +88,27 @@ def comment():
 	content = request.form['content']
 	return redirect("/viewpost?post=" + str(post_id))
 
-@app.route('/like-post/<id>', methods=['GET'])
+@app.route('/like-post', methods=['POST','GET'])
 @login_required
-def like(post_id):
-	post = Post.query.filter_by(id=post_id)
-	like= Like.query.filter_by(author=current_user.id, post_id=post_id).first()
+def like():
+	post_id = int(request.args.get("post"))
+	post = Post.query.filter(Post.id == post_id).first()
+	# post = Post.query.filter_by(id=post_id)
+	like= Like.query.filter(Like.user_id==current_user.id).first()
 
+	# post = Post.query.filter(Post.id == post_id).first()
 	if not post:
 		flash('Post does not exist.', category='error')
 	elif like:
 		db.session.delete(like)
 		db.session.commit()
 	else:
-		like= like(author= current_user.id, post_id= post_id)
-		db.session.delete(like)
+		like = Like(current_user.id, post_id)
+		current_user.like.append(like)
+		post.like.append(like)
+		# db.session.delete(like)
 		db.session.commit()
-	return redirect(url_for('views.home'))
+	return redirect("/viewpost?post="+ str(post_id))
 
 
 @login_required
@@ -316,15 +322,15 @@ class User(UserMixin, db.Model):
 	# admin = db.Column(db.Boolean, default=False, unique=True)
 	posts = db.relationship("Post", backref="user")
 	comments = db.relationship("Comment", backref="user")
-	# Like = db.relationship("Like", backref="post")
+	like = db.relationship("Like", backref="user")
 	about = db.Column(db.Text)
 	avatar = db.Column(db.Integer, default = 0)
 	background_color = db.Column(db.Text, default = "#77898B")
-	liked = db.relationship(
-		'Post', secondary="likes",
-		primaryjoin="likes.likes_id == users.id",
-		secondaryjoin="likes.likes_id == posts.id",
-		backref=db.backref('likes', lazy='dynamic'), lazy='dynamic')
+	# liked = db.relationship(
+	# 	'Post', secondary="likes",
+	# 	primaryjoin="likes.likes_id == users.id",
+	# 	secondaryjoin="likes.likes_id == posts.id",
+	# 	backref=db.backref('likes', lazy='dynamic'), lazy='dynamic')
 
 	def __init__(self, email, username, password):
 		self.email = email
@@ -341,7 +347,7 @@ class Post(db.Model):
 	subforum_id = db.Column(db.Integer, db.ForeignKey('subforum.id'))
 	postdate = db.Column(db.DateTime)
 	# Like = db.relationship("Post", backref="post")
-	like = db.Column("Post", backref="post")
+	like = db.relationship("Like", backref="post")
 
 	#cache stuff
 	lastcheck = None
@@ -395,12 +401,12 @@ class Comment(db.Model):
 	postdate = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-	Like = db.relationship("Comment", backref="post")
+	# Like = db.relationship("Comment", backref="post")
 
 class Like(db.Model):
 	__tablename__ = 'like'
 	id = db.Column(db.Integer, primary_key=True)
-	postdate = db.Column(db.DateTime)
+	# postdate = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
 

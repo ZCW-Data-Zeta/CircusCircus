@@ -5,6 +5,8 @@
 # import statements
 from flask import *
 from flask_login import LoginManager, current_user, login_user, logout_user
+# import datetime
+
 
 # from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 # import datetime
@@ -37,14 +39,16 @@ if os.getenv("DATABASE_URL"):
 else:
     print("DATABASE_URL is not set, using sqlite")
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) # calls database
 Markdown(app)
 env = jinja2.Environment()
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
-# VIEWS
+import db_checks
+# adding in packaging files
 
+# --- VIEWS ---
 
 def upload_file():
     if request.method == 'POST':

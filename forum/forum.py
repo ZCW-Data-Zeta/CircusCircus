@@ -1,7 +1,7 @@
 from flask import *
 #from flask.ext.login import LoginManager, login_required, current_user, logout_user, login_user
 from flask_login import LoginManager, current_user, login_user, logout_user
-import datetime
+# import datetime
 
 from flask_login.utils import login_required
 from forum.app import app

@@ -140,7 +140,6 @@ class Client:
             return
         self.write()
 
-
     def send_private(self, address, message):
         """
             Private message in case of group messaging situations
@@ -151,5 +150,6 @@ class Client:
         self.send_message(self, address)
 
 
-# starts client connection
-client = Client(HOST, PORT)
+if __name__ == '__main__':
+    # starts client connection
+    client = Client(HOST, PORT)

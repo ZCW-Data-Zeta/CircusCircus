@@ -23,7 +23,8 @@ else:
 	print("DATABASE_URL is not set, using sqlite")
 
 db = SQLAlchemy(app) # calls database
-
+# adding in packaging files
+import db_checks
 # --- VIEWS ---
 
 

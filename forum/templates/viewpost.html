@@ -25,16 +25,22 @@
 	<!--add react buttons on posts-->
 	<body>
 
+	<div class="button-container">
 
 	<form action="/like-post?post={{ post.id }}" method="POST">
+		<input class="inputbox" type="submit" value="&#128077">
+	</form>
 		<form action="/dislike-post?post={{ post.id }}" method="POST">
 <!--		<input type = "button" class = "btn btn-default" id = "like" onclick = "likeCounter()" value = "&#128077"> <p id="likeTotal">0</p>-->
 <!--		<input type = "button" class = "btn btn-default" id = "dislike" onclick = "dislikeCounter()" value = "&#128078">  <p id="dislikeTotal">0</p>-->
 
-	<input class="inputbox" type="submit" value="&#128077"> <p>{{num_likes}} </p>
-	<input class="inputbox" type="submit" value="&#128078"> <p>{{num_dislikes}}</p>
+<!--	<input class="inputbox" type="submit" value="&#128077"> -->
+	<input class="inputbox" type="submit" value="&#128078">
 
 	</form>
+	  </div>
+
+	<p>{{num_likes}} {{num_dislikes}}</p>
 	<script>
 		var counter1 = 0;
 		var counter2 = 0;

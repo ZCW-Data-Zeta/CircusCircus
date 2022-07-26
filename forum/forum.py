@@ -138,12 +138,19 @@ def like():
     post = Post.query.filter(Post.id == post_id).first()
     # post = Post.query.filter_by(id=post_id)
     like = Like.query.filter(Like.user_id == current_user.id).first()
+    dislike = Dislike.query.filter(Dislike.user_id == current_user.id).first()
 
     # post = Post.query.filter(Post.id == post_id).first()
     if not post:
         flash('Post does not exist.', category='error')
     elif like:
         db.session.delete(like)
+        db.session.commit()
+    elif dislike:
+        db.session.delete(dislike)
+        like = Like(current_user.id, post_id)
+        current_user.like.append(like)
+        post.like.append(like)
         db.session.commit()
     else:
         like = Like(current_user.id, post_id)
@@ -159,6 +166,7 @@ def dislike():
     post_id = int(request.args.get("post"))
     post = Post.query.filter(Post.id == post_id).first()
     # post = Post.query.filter_by(id=post_id)
+    like = Like.query.filter(Like.user_id == current_user.id).first()
     dislike = Dislike.query.filter(Dislike.user_id == current_user.id).first()
 
     # post = Post.query.filter(Post.id == post_id).first()
@@ -167,10 +175,16 @@ def dislike():
     elif dislike:
         db.session.delete(dislike)
         db.session.commit()
+    elif like:
+        db.session.delete(like)
+        dislike = Dislike(current_user.id, post_id)
+        current_user.dislike.append(dislike)
+        post.dislike.append(dislike)
+        db.session.commit()
     else:
         dislike = Dislike(current_user.id, post_id)
         current_user.dislike.append(dislike)
-        post.Dislike.append(dislike)
+        post.dislike.append(dislike)
         # db.session.delete(like)
         db.session.commit()
     return redirect("/viewpost?post=" + str(post_id))
@@ -524,14 +538,17 @@ class Like(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
 
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
+
+
 class Dislike(db.Model):
     __tablename__ = 'dislike'
     id = db.Column(db.Integer, primary_key=True)
     # postdate = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
-
-
 
     def __init__(self, user_id, post_id):
         self.user_id = user_id

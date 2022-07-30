@@ -3,25 +3,22 @@ This is a minimal forum written in python with Flask. It supports only the bare 
 
 On first run, the default subforums will be created. Although custom subforums are not supported through any user interface, it is possible to modify forum/setup.py to create custom subforums.
 
+## Features Added
+
+  - Ability to like each post
+  - Added photo upload option when creating posts.
+  - New logo and theme, inspired by the fashion sense of a certain individual.
+  - Users can now add about me pages, which also show their post history. Relevant links added in templates.
+  - Posts can be marked public or private, with private requiring a user to sign in to view.
+  - Markdown is available for posts, about me sections, and comments.
+
 ## Features to Add
 
-- comments on each post (many comments to one post)
-- like/dislike/heart/etc emojis on posts
-- direct messages from one user to another
-- insert pix links and/or video links
-- a nice style based on Bootstrap
-  - a logo on every page
-  - copyright, about etc on footer of each page
-- user settings
-- public/private posts
-  - public posts can be seen by people not logged in
-  - private posts can only be seen by users logged in
-- posts can be plain text or markdown
+- dislike/heart/etc emojis on posts
+- direct messages from one user to another. IM system WIP with plenty of progress.
+- insert video links
+- additional user settings
 
-## Changes in 2020
-
-I had to make a bunch of changes in this code to get it running. Took far longer than it should.
-But now, if I have it right, you need to clone this and then
 
 This currently puts a sqlite3 db in the /tmp directory.
 
